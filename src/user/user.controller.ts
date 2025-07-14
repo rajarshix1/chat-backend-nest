@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
-import { ReturnUserDto } from './schema/user.dto';
+import { LoginUserDto, ReturnUserDto } from './schema/user.dto';
 
 @Controller('user')
 export class UserController {
@@ -19,8 +19,14 @@ export class UserController {
         return this.userService.getUserById(id)
     }
     @Post()
-    createUser(@Body() body: User) : Promise<ReturnUserDto> {
-        return this.userService.createUser(body)
+    async register(@Body() body: User) : Promise<ReturnUserDto> {
+        return await this.userService.createUser(body)
+    }
+    @Post('login')
+    async login(@Req() req:any, @Body() body: LoginUserDto) : Promise<{data: ReturnUserDto, jwt:string}> {
+        const {data, jwt} = await this.userService.loginUser(body)
+        req.user = data
+        return {data, jwt}
     }
 
     
